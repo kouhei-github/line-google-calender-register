@@ -6,6 +6,10 @@ import {UserController} from "../presentation/api/server/controller/userControll
 import {IWebHooks, WebHooks} from "../presentation/api/server/router";
 import {ServerMiddleware} from "../presentation/api/server/middleware";
 import {LoginUseCase} from "../application/useCase/authUseCase/loginUseCase";
+import {LineWebHookController} from "../presentation/api/server/controller/lineWebHookController";
+import {FollowUseCase} from "../application/useCase/Line/followUseCase/followUseCase";
+import {PostBackUseCase} from "../application/useCase/Line/postBackUseCase/postBackUseCase";
+import {MessageUseCase} from "../application/useCase/Line/messageUseCase/messageUseCase";
 
 export const injection = (): IWebHooks => {
 
@@ -22,6 +26,18 @@ export const injection = (): IWebHooks => {
   const loginUseCase = LoginUseCase.builder(userRepository, securityExternal)
 
   const userHandler = UserController.builder(signUpUseCase, allUserUseCase, loginUseCase)
+
+  // line 関連
+  // フォローイベント
+  const followUseCase = FollowUseCase.builder()
+
+  // ポストバックイベント
+  const postBackUseCase = PostBackUseCase.builder()
+
+  // メッセージ
+  const messageUseCase = MessageUseCase.builder()
+
+  const lineHandler = LineWebHookController.builder(followUseCase, postBackUseCase, messageUseCase)
   // ここでルーティングの設定
-  return WebHooks.builder( userHandler )
+  return WebHooks.builder( userHandler, lineHandler )
 }
