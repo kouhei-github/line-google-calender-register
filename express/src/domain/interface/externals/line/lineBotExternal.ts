@@ -1,7 +1,11 @@
-import {Message} from "@line/bot-sdk";
+import { Message } from "@line/bot-sdk";
+
+export interface ILineConverter {
+  convert():  Message | Message[]
+}
 
 export interface ILineBotExternal {
-  greetingMessage(replyToken: string): void
-  replyMessage(replyToken: string, message: Message | Message[]): void
-  pushMessage(lineUserId: string, message:  Message | Message[]): void
+  replyMessage(replyToken: string, converter: ILineConverter): void
+  pushMessage(lineUserId: string, converter: ILineConverter): void
+  getImageContent(messageId: string): Promise<string>
 }
