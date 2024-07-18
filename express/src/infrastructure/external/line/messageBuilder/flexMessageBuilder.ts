@@ -1,24 +1,28 @@
 import { FlexMessage } from '@line/bot-sdk';
+import {ILineConverter} from "../../../../domain/interface/externals/line/lineBotExternal";
 
 export interface FlexMessageJSON {
   type: 'bubble' | 'carousel';
   contents: any;
 }
 
-export class FlexMessageConverter {
-  public convert(json: FlexMessageJSON): FlexMessage {
+export class FlexMessageConverter implements ILineConverter{
+  constructor(private json: FlexMessageJSON) {}
+  public convert(): FlexMessage
+  {
     // JSONの構造を検証
-    this.validateJSON(json);
+    this.validateJSON(this.json);
 
     // FlexMessageオブジェクトを作成
     return {
       type: 'flex',
       altText: 'This is a Flex Message',
-      contents: json
+      contents: this.json
     };
   }
 
-  private validateJSON(json: FlexMessageJSON): void {
+  private validateJSON(json: FlexMessageJSON): void
+  {
     if (json.type !== 'bubble' && json.type !== 'carousel') {
       throw new Error('Invalid Flex Message type. Must be either "bubble" or "carousel".');
     }
@@ -28,6 +32,11 @@ export class FlexMessageConverter {
     }
 
     // 追加のバリデーションをここに実装できます
+  }
+
+  static builder(json: FlexMessageJSON): ILineConverter
+  {
+    return new this(json)
   }
 }
 

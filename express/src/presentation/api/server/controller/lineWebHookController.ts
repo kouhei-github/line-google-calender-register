@@ -31,7 +31,7 @@ export class LineWebHookController implements ILineWebHookController {
         if (event.type === 'message' && event.message.type === 'image'){
           const imageResponse = await this.imageUseCase.execute(event)
           return res.status(200).json(imageResponse)
-        } else {
+        } else if (event.type === 'message' && event.message.type === 'text') {
           const messageResponse = await this.messageUseCase.execute(event)
           return res.status(200).json(messageResponse)
         }
