@@ -12,6 +12,7 @@ import {PostBackUseCase} from "../application/useCase/Line/postBackUseCase/postB
 import {MessageUseCase} from "../application/useCase/Line/messageUseCase/messageUseCase";
 import {IEnvSetUp} from "../envs/config";
 import {LineBotExternal} from "../infrastructure/external/line/lineBotExternal";
+import {ImageUseCase} from "../application/useCase/Line/imageUseCase/imageUseCase";
 
 export const injection = (envLib: IEnvSetUp): IWebHooks => {
 
@@ -41,7 +42,10 @@ export const injection = (envLib: IEnvSetUp): IWebHooks => {
   // メッセージイベント
   const messageUseCase = MessageUseCase.builder(lineBotExternal)
 
-  const lineHandler = LineWebHookController.builder(followUseCase, postBackUseCase, messageUseCase)
+  // 画像送信イベント
+  const imageUseCase = ImageUseCase.builder(lineBotExternal)
+
+  const lineHandler = LineWebHookController.builder(followUseCase, postBackUseCase, messageUseCase, imageUseCase)
   // ここでルーティングの設定
   return WebHooks.builder( userHandler, lineHandler )
 }

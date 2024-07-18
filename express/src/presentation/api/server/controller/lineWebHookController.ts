@@ -4,12 +4,14 @@ import {FollowUseCase} from "../../../../application/useCase/Line/followUseCase/
 import {WebhookRequestBody} from "@line/bot-sdk";
 import {PostBackUseCase} from "../../../../application/useCase/Line/postBackUseCase/postBackUseCase";
 import {MessageUseCase} from "../../../../application/useCase/Line/messageUseCase/messageUseCase";
+import {ImageUseCase} from "../../../../application/useCase/Line/imageUseCase/imageUseCase";
 
 export class LineWebHookController implements ILineWebHookController {
   constructor(
     private followUseCae: FollowUseCase,
     private postBackUseCase: PostBackUseCase,
-    private messageUseCase: MessageUseCase
+    private messageUseCase: MessageUseCase,
+    private imageUseCase: ImageUseCase,
   ) {
   }
   async hooks(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>
@@ -25,8 +27,15 @@ export class LineWebHookController implements ILineWebHookController {
         const postbackResponse = await this.postBackUseCase.execute(event)
         return res.status(200).json(postbackResponse)
       case "message":
-        const messageResponse = await this.messageUseCase.execute(event)
-        return res.status(200).json(messageResponse)
+        // 画像が送信されたかどうか
+        if (event.type === 'message' && event.message.type === 'image'){
+          const imageResponse = await this.imageUseCase.execute(event)
+          return res.status(200).json(imageResponse)
+        } else {
+          const messageResponse = await this.messageUseCase.execute(event)
+          return res.status(200).json(messageResponse)
+        }
+
     }
     return res.json("test");
   }
@@ -35,8 +44,9 @@ export class LineWebHookController implements ILineWebHookController {
     followUseCae: FollowUseCase,
     postBackUseCase: PostBackUseCase,
     messageUseCase: MessageUseCase,
+    imageUseCase: ImageUseCase
   ): ILineWebHookController
   {
-    return new this(followUseCae, postBackUseCase, messageUseCase)
+    return new this(followUseCae, postBackUseCase, messageUseCase, imageUseCase)
   }
 }
