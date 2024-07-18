@@ -11,6 +11,7 @@ import {FollowUseCase} from "../application/useCase/Line/followUseCase/followUse
 import {PostBackUseCase} from "../application/useCase/Line/postBackUseCase/postBackUseCase";
 import {MessageUseCase} from "../application/useCase/Line/messageUseCase/messageUseCase";
 import {IEnvSetUp} from "../envs/config";
+import {LineBotExternal} from "../infrastructure/external/line/lineBotExternal";
 
 export const injection = (envLib: IEnvSetUp): IWebHooks => {
 
@@ -29,14 +30,16 @@ export const injection = (envLib: IEnvSetUp): IWebHooks => {
   const userHandler = UserController.builder(signUpUseCase, allUserUseCase, loginUseCase)
 
   // line 関連
+  const lineBotExternal = LineBotExternal.builder(envLib)
+
   // フォローイベント
-  const followUseCase = FollowUseCase.builder()
+  const followUseCase = FollowUseCase.builder(lineBotExternal)
 
   // ポストバックイベント
-  const postBackUseCase = PostBackUseCase.builder()
+  const postBackUseCase = PostBackUseCase.builder(lineBotExternal)
 
-  // メッセージ
-  const messageUseCase = MessageUseCase.builder()
+  // メッセージイベント
+  const messageUseCase = MessageUseCase.builder(lineBotExternal)
 
   const lineHandler = LineWebHookController.builder(followUseCase, postBackUseCase, messageUseCase)
   // ここでルーティングの設定
