@@ -1,11 +1,12 @@
 import {IResponse} from "../../index";
-import {WebhookRequestBody} from "@line/bot-sdk";
+import {PostbackEvent, WebhookRequestBody} from "@line/bot-sdk";
+import {ILineBotExternal} from "../../../../domain/interface/externals/line/lineBotExternal";
 
 export class PostBackUseCase {
-  constructor() {
+  constructor(private lineBot: ILineBotExternal) {
   }
 
-  public async execute(lineBody: WebhookRequestBody): Promise<IResponse>
+  public async execute(event: PostbackEvent): Promise<IResponse>
   {
     /**
      * [初期設定]
@@ -21,8 +22,8 @@ export class PostBackUseCase {
     return {data: "", status: 400, message: "すでに存在するメールアドレスです"}
   }
 
-  static builder(): PostBackUseCase
+  static builder(lineBot: ILineBotExternal): PostBackUseCase
   {
-    return new this()
+    return new this(lineBot)
   }
 }

@@ -1,11 +1,12 @@
 import {IResponse} from "../../index";
-import {WebhookRequestBody} from "@line/bot-sdk";
+import {FollowEvent} from "@line/bot-sdk";
+import {ILineBotExternal} from "../../../../domain/interface/externals/line/lineBotExternal";
 
 export class FollowUseCase {
-  constructor() {
+  constructor(private lineBot: ILineBotExternal) {
   }
 
-  public async execute(lineBody: WebhookRequestBody): Promise<IResponse>
+  public async execute(event: FollowEvent): Promise<IResponse>
   {
     /**
      * [初期設定]
@@ -17,12 +18,19 @@ export class FollowUseCase {
      * 2024年の8月2日に永松さんと14時から打ち合わせがあるから予定を追加して。
      * Google MeetsのURLも発行して
      */
+    try {
+      const replyToken = event.replyToken;
+      this.lineBot.greetingMessage(replyToken)
+    } catch(e) {
+      console.log(`[ ERROR ] Follow Event: ${e}`)
+      return {data: "", status: 400, message: `[ ERROR ] Follow Event: ${e}`}
+    }
 
-    return {data: "", status: 400, message: "すでに存在するメールアドレスです"}
+    return {data: "", status: 200, message: "挨拶メッセージの送信完了"}
   }
 
-  static builder(): FollowUseCase
+  static builder(lineBot: ILineBotExternal): FollowUseCase
   {
-    return new this()
+    return new this(lineBot)
   }
 }

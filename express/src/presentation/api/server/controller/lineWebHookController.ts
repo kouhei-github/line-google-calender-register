@@ -15,16 +15,17 @@ export class LineWebHookController implements ILineWebHookController {
   async hooks(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>
   {
     const lineWebHookBody: WebhookRequestBody = req.body;
-    console.log(req.body.events[0].type)
-    switch (req.body.events[0].type) {
+    const event = lineWebHookBody.events[0]
+    console.log(event.type)
+    switch (event.type) {
       case "follow":
-        const followResponse = await this.followUseCae.execute(lineWebHookBody)
+        const followResponse = await this.followUseCae.execute(event)
         return res.status(200).json(followResponse)
       case "postback":
-        const postbackResponse = await this.postBackUseCase.execute(lineWebHookBody)
+        const postbackResponse = await this.postBackUseCase.execute(event)
         return res.status(200).json(postbackResponse)
       case "message":
-        const messageResponse = await this.messageUseCase.execute(lineWebHookBody)
+        const messageResponse = await this.messageUseCase.execute(event)
         return res.status(200).json(messageResponse)
     }
     return res.json("test");
