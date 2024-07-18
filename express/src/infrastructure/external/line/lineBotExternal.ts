@@ -191,7 +191,7 @@ export class LineBotExternal implements ILineBotExternal {
                   },
                   {
                     type: "text",
-                    text: "About",
+                    text: "ChatGPT",
                     color: "#ffffff",
                     size: "lg",
                     contents: [],
@@ -290,7 +290,7 @@ export class LineBotExternal implements ILineBotExternal {
                   },
                   {
                     type: "text",
-                    text: "Works",
+                    text: "Google Meets",
                     color: "#ffffff",
                     size: "lg",
                     contents: [],
@@ -389,7 +389,7 @@ export class LineBotExternal implements ILineBotExternal {
                   },
                   {
                     type: "text",
-                    text: "Staff",
+                    text: "スクリーンショット",
                     color: "#ffffff",
                     size: "lg",
                     contents: [],
