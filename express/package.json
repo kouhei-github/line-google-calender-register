@@ -6,6 +6,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@line/bot-sdk": "^9.2.2",
     "@types/aws-lambda": "^8.10.92",
     "@types/compression": "^1.7.5",
     "@types/cookie-parser": "^1.4.7",
