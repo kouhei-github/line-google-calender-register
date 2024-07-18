@@ -1,5 +1,5 @@
 import {FlexMessageConverter, FlexMessageJSON} from "./messageBuilder/flexMessageBuilder";
-import {ILineBotExternal, ILineConverter} from "../../../domain/interface/externals/line/lineBotExternal";
+import {ILineBotExternal, ILineConverter} from "../../../domain/interface/externals/lineBotExternal";
 import {Client, FlexMessage, Message} from "@line/bot-sdk";
 import {IEnvSetUp} from "../../../envs/config";
 import {Readable} from "node:stream";

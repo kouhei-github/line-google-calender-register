@@ -1,6 +1,6 @@
 import {IResponse} from "../../index";
 import { FollowEvent } from "@line/bot-sdk";
-import {ILineBotExternal} from "../../../../domain/interface/externals/line/lineBotExternal";
+import {ILineBotExternal} from "../../../../domain/interface/externals/lineBotExternal";
 import {
   FlexMessageConverter,
   FlexMessageJSON

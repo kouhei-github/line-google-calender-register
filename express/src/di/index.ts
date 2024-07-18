@@ -7,12 +7,13 @@ import {IWebHooks, WebHooks} from "../presentation/api/server/router";
 import {ServerMiddleware} from "../presentation/api/server/middleware";
 import {LoginUseCase} from "../application/useCase/authUseCase/loginUseCase";
 import {LineWebHookController} from "../presentation/api/server/controller/lineWebHookController";
-import {FollowUseCase} from "../application/useCase/Line/followUseCase/followUseCase";
-import {PostBackUseCase} from "../application/useCase/Line/postBackUseCase/postBackUseCase";
-import {MessageUseCase} from "../application/useCase/Line/messageUseCase/messageUseCase";
+import {FollowUseCase} from "../application/useCase/line/followUseCase/followUseCase";
+import {PostBackUseCase} from "../application/useCase/line/postBackUseCase/postBackUseCase";
+import {MessageUseCase} from "../application/useCase/line/messageUseCase/messageUseCase";
 import {IEnvSetUp} from "../envs/config";
 import {LineBotExternal} from "../infrastructure/external/line/lineBotExternal";
-import {ImageUseCase} from "../application/useCase/Line/imageUseCase/imageUseCase";
+import {ImageUseCase} from "../application/useCase/line/imageUseCase/imageUseCase";
+import {GoogleCalenderExternal} from "../infrastructure/external/google/calender/googleCalenderExternal";
 
 export const injection = (envLib: IEnvSetUp): IWebHooks => {
 
@@ -30,6 +31,9 @@ export const injection = (envLib: IEnvSetUp): IWebHooks => {
 
   const userHandler = UserController.builder(signUpUseCase, allUserUseCase, loginUseCase)
 
+  // Google Calender
+  const googleCalenderExt = GoogleCalenderExternal.builder(envLib)
+
   // line 関連
   const lineBotExternal = LineBotExternal.builder(envLib)
 
@@ -40,10 +44,10 @@ export const injection = (envLib: IEnvSetUp): IWebHooks => {
   const postBackUseCase = PostBackUseCase.builder(lineBotExternal)
 
   // メッセージイベント
-  const messageUseCase = MessageUseCase.builder(lineBotExternal)
+  const messageUseCase = MessageUseCase.builder(lineBotExternal, googleCalenderExt)
 
   // 画像送信イベント
-  const imageUseCase = ImageUseCase.builder(lineBotExternal)
+  const imageUseCase = ImageUseCase.builder(lineBotExternal, googleCalenderExt)
 
   const lineHandler = LineWebHookController.builder(followUseCase, postBackUseCase, messageUseCase, imageUseCase)
   // ここでルーティングの設定

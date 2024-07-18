@@ -1,10 +1,10 @@
 import {Request, Response} from "express";
 import {ILineWebHookController} from "../router/implument";
-import {FollowUseCase} from "../../../../application/useCase/Line/followUseCase/followUseCase";
+import {FollowUseCase} from "../../../../application/useCase/line/followUseCase/followUseCase";
 import {WebhookRequestBody} from "@line/bot-sdk";
-import {PostBackUseCase} from "../../../../application/useCase/Line/postBackUseCase/postBackUseCase";
-import {MessageUseCase} from "../../../../application/useCase/Line/messageUseCase/messageUseCase";
-import {ImageUseCase} from "../../../../application/useCase/Line/imageUseCase/imageUseCase";
+import {PostBackUseCase} from "../../../../application/useCase/line/postBackUseCase/postBackUseCase";
+import {MessageUseCase} from "../../../../application/useCase/line/messageUseCase/messageUseCase";
+import {ImageUseCase} from "../../../../application/useCase/line/imageUseCase/imageUseCase";
 
 export class LineWebHookController implements ILineWebHookController {
   constructor(

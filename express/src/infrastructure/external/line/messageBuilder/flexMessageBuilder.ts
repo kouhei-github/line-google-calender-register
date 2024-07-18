@@ -1,5 +1,5 @@
 import { FlexMessage } from '@line/bot-sdk';
-import {ILineConverter} from "../../../../domain/interface/externals/line/lineBotExternal";
+import {ILineConverter} from "../../../../domain/interface/externals/lineBotExternal";
 
 export interface FlexMessageJSON {
   type: 'bubble' | 'carousel';

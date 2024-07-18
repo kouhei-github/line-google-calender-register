@@ -1,9 +1,10 @@
 import {IResponse} from "../../index";
 import {ImageEventMessage, MessageEvent, TextEventMessage} from "@line/bot-sdk";
-import {ILineBotExternal} from "../../../../domain/interface/externals/line/lineBotExternal";
+import {ILineBotExternal} from "../../../../domain/interface/externals/lineBotExternal";
+import {IGoogleCalenderExternal} from "../../../../domain/interface/externals/googleCalenderExternal";
 
 export class ImageUseCase {
-  constructor(private lineBot: ILineBotExternal) {
+  constructor(private lineBot: ILineBotExternal, private googleCalenderExternal: IGoogleCalenderExternal) {
   }
 
   public async execute(event: MessageEvent): Promise<IResponse>
@@ -17,8 +18,8 @@ export class ImageUseCase {
   }
 
 
-  static builder(lineBot: ILineBotExternal): ImageUseCase
+  static builder(lineBot: ILineBotExternal, googleCalender: IGoogleCalenderExternal): ImageUseCase
   {
-    return new this(lineBot)
+    return new this(lineBot, googleCalender)
   }
 }

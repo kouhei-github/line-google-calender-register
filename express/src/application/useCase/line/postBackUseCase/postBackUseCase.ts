@@ -1,6 +1,6 @@
 import {IResponse} from "../../index";
 import {PostbackEvent, WebhookRequestBody} from "@line/bot-sdk";
-import {ILineBotExternal} from "../../../../domain/interface/externals/line/lineBotExternal";
+import {ILineBotExternal} from "../../../../domain/interface/externals/lineBotExternal";
 
 export class PostBackUseCase {
   constructor(private lineBot: ILineBotExternal) {

@@ -1,4 +1,4 @@
-import {ILineConverter} from "../../../../domain/interface/externals/line/lineBotExternal";
+import {ILineConverter} from "../../../../domain/interface/externals/lineBotExternal";
 import {FlexMessageJSON} from "./flexMessageBuilder";
 import {FlexMessage, TextMessage} from "@line/bot-sdk";
 
