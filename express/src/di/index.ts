@@ -10,8 +10,9 @@ import {LineWebHookController} from "../presentation/api/server/controller/lineW
 import {FollowUseCase} from "../application/useCase/Line/followUseCase/followUseCase";
 import {PostBackUseCase} from "../application/useCase/Line/postBackUseCase/postBackUseCase";
 import {MessageUseCase} from "../application/useCase/Line/messageUseCase/messageUseCase";
+import {IEnvSetUp} from "../envs/config";
 
-export const injection = (): IWebHooks => {
+export const injection = (envLib: IEnvSetUp): IWebHooks => {
 
   const userRepository = UserRepository.builder()
 

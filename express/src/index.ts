@@ -6,10 +6,11 @@ import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import bodyParser from 'body-parser'
 import {injection} from './di'
-import {databaseReflect} from './infrastructure/datastore/db'
+import {EnvSetUp} from "./envs/config";
 
-// データベースに接続
-databaseReflect()
+// 環境変数の読み込み
+const envLib = EnvSetUp.builder()
+envLib.setUp()
 
 const app = express()
 app.use(cors({
@@ -21,7 +22,7 @@ app.use(cookieParser())
 app.use(bodyParser.json())
 
 // Dependency Injection
-const router = injection()
+const router = injection(envLib)
 
 app.use("/api/", router.register())
 
