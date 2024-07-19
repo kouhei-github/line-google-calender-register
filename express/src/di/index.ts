@@ -52,7 +52,7 @@ export const injection = (envLib: IEnvSetUp): IWebHooks => {
   const messageUseCase = MessageUseCase.builder(lineBotExternal, googleCalenderExt, gptExternal)
 
   // 画像送信イベント
-  const imageUseCase = ImageUseCase.builder(lineBotExternal, googleCalenderExt)
+  const imageUseCase = ImageUseCase.builder(lineBotExternal, googleCalenderExt, gptExternal)
 
   // 音声送信イベント
   const audioUseCase = AudioUseCase.builder(lineBotExternal, gptExternal, googleCalenderExt)

@@ -42,7 +42,6 @@ export class ChatGptExternal implements ILlmExternal {
       },
       usage: engine.usage
     }
-
     return gptResponse
   }
 
@@ -52,8 +51,41 @@ export class ChatGptExternal implements ILlmExternal {
       file: file,
       model: "whisper-1"
     })
-
     return transcription.text
+  }
+
+  public async ocr(base64Image: string): Promise<LlmResponse>
+  {
+    const engine = await this.openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {role: 'system', content: `${this.SYSTEM_PROMPT}`},
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `${this.SYSTEM_PROMPT}`
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: base64Image
+              }
+            }
+          ]
+        }
+      ],
+    })
+    const gptResponse = {
+      model: engine.model,
+      choice: {
+        role: engine.choices[0].message.role,
+        content: engine.choices[0].message.content ?? "",
+      },
+      usage: engine.usage
+    }
+    return gptResponse
   }
 
   static builder(envLib: IEnvSetUp): ILlmExternal
