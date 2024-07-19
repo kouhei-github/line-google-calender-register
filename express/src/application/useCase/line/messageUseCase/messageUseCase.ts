@@ -12,6 +12,8 @@ import {Description} from "../../../../domain/models/calenderModel/description";
 import {TimeZone} from "../../../../domain/models/calenderModel/timeZone";
 import {Location} from "../../../../domain/models/calenderModel/location";
 import {EndDateTime} from "../../../../domain/models/calenderModel/endDateTime";
+import {FlexMessageConverter} from "../../../../infrastructure/external/line/messageBuilder/flexMessageBuilder";
+import {BubbleMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/bubbleMessageBuilder";
 
 export class MessageUseCase {
   constructor(
@@ -54,14 +56,19 @@ export class MessageUseCase {
         summaryDomain, descriptionDomain, locationDomain, timeZoneDomain, datetimeEntity)
 
       // Google Calender登録
-      this.googleCalenderExternal.createEventWithMeetLink(
+      const myEvent = await this.googleCalenderExternal.createEventWithMeetLink(
         "kohei0801nagamatsu@gmail.com",
         calenderEntity
       )
 
-      const textConverter = TextMessageBuilder.builder(calenderEntity.toString())
+      console.log(myEvent.htmlLink)
+      console.log(myEvent.hangoutLink)
 
-      this.lineBot.replyMessage(event.replyToken, textConverter)
+      const bubbleMessage = BubbleMessageBuilder.GoogleRegisterUI(myEvent.htmlLink ?? "", calenderEntity)
+
+      const bubbleConverter = BubbleMessageBuilder.builder(bubbleMessage)
+
+      this.lineBot.replyMessage(event.replyToken, bubbleConverter)
 
       return {data: "メッセージの送信完了", status: 200, message: "メッセージの送信完了"}
     } catch (e) {

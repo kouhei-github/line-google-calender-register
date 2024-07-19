@@ -1,5 +1,6 @@
-import { FlexMessage } from '@line/bot-sdk';
+import {FlexBubble, FlexMessage} from '@line/bot-sdk';
 import {ILineConverter} from "../../../../domain/interface/externals/lineBotExternal";
+import {CalenderEntity} from "../../../../domain/models/calenderModel/calenderEntity";
 
 export interface FlexMessageJSON {
   type: 'bubble' | 'carousel';
