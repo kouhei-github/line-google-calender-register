@@ -26,6 +26,21 @@ export class LineBotExternal implements ILineBotExternal {
     this.bot.replyMessage(replyToken, message)
   }
 
+  public async getAudioContent(messageId: string): Promise<File>
+  {
+    const stream = await this.bot.getMessageContent(messageId)
+    // ストリームからバイナリーデータを取得
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) {
+      chunks.push(chunk);
+    }
+    // すべてのチャンクを1つのBufferに結合
+    const audioBuffer = Buffer.concat(chunks);
+    // バッファーからFileオブジェクトを作成
+    const file = new File([audioBuffer], 'audio.m4a', { type: 'audio/m4a' });
+    return file
+  }
+
   public async getImageContent(messageId: string)
   {
     const content = await this.bot.getMessageContent(messageId)

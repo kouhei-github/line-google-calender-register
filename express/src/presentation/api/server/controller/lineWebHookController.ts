@@ -5,6 +5,7 @@ import {WebhookRequestBody} from "@line/bot-sdk";
 import {PostBackUseCase} from "../../../../application/useCase/line/postBackUseCase/postBackUseCase";
 import {MessageUseCase} from "../../../../application/useCase/line/messageUseCase/messageUseCase";
 import {ImageUseCase} from "../../../../application/useCase/line/imageUseCase/imageUseCase";
+import {AudioUseCase} from "../../../../application/useCase/line/audioUseCase/audioUseCase";
 
 export class LineWebHookController implements ILineWebHookController {
   constructor(
@@ -12,6 +13,7 @@ export class LineWebHookController implements ILineWebHookController {
     private postBackUseCase: PostBackUseCase,
     private messageUseCase: MessageUseCase,
     private imageUseCase: ImageUseCase,
+    private audioUseCase: AudioUseCase
   ) {
   }
   async hooks(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>
@@ -28,12 +30,16 @@ export class LineWebHookController implements ILineWebHookController {
         return res.status(200).json(postbackResponse)
       case "message":
         // 画像が送信されたかどうか
-        if (event.type === 'message' && event.message.type === 'image'){
+        if (event.message.type === 'image'){
           const imageResponse = await this.imageUseCase.execute(event)
           return res.status(200).json(imageResponse)
-        } else if (event.type === 'message' && event.message.type === 'text') {
+        } else if (event.message.type === 'text') {
           const messageResponse = await this.messageUseCase.execute(event)
           return res.status(200).json(messageResponse)
+        } else if (event.message.type === 'audio'){
+          const audioResponse = await this.audioUseCase.execute(event)
+          return res.status(200).json(audioResponse)
+
         }
 
     }
@@ -44,9 +50,16 @@ export class LineWebHookController implements ILineWebHookController {
     followUseCae: FollowUseCase,
     postBackUseCase: PostBackUseCase,
     messageUseCase: MessageUseCase,
-    imageUseCase: ImageUseCase
+    imageUseCase: ImageUseCase,
+    audioUseCase: AudioUseCase
   ): ILineWebHookController
   {
-    return new this(followUseCae, postBackUseCase, messageUseCase, imageUseCase)
+    return new this(
+      followUseCae,
+      postBackUseCase,
+      messageUseCase,
+      imageUseCase,
+      audioUseCase
+    )
   }
 }

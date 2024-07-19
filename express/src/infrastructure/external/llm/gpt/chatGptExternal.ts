@@ -46,7 +46,15 @@ export class ChatGptExternal implements ILlmExternal {
     return gptResponse
   }
 
+  public async audio(file: File): Promise<string>
+  {
+    const transcription = await this.openai.audio.transcriptions.create({
+      file: file,
+      model: "whisper-1"
+    })
 
+    return transcription.text
+  }
 
   static builder(envLib: IEnvSetUp): ILlmExternal
   {
