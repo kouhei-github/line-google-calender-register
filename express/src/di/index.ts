@@ -14,6 +14,7 @@ import {IEnvSetUp} from "../envs/config";
 import {LineBotExternal} from "../infrastructure/external/line/lineBotExternal";
 import {ImageUseCase} from "../application/useCase/line/imageUseCase/imageUseCase";
 import {GoogleCalenderExternal} from "../infrastructure/external/google/calender/googleCalenderExternal";
+import {ChatGptExternal} from "../infrastructure/external/llm/gpt/chatGptExternal";
 
 export const injection = (envLib: IEnvSetUp): IWebHooks => {
 
@@ -37,6 +38,9 @@ export const injection = (envLib: IEnvSetUp): IWebHooks => {
   // line 関連
   const lineBotExternal = LineBotExternal.builder(envLib)
 
+  // gpt
+  const gptExternal = ChatGptExternal.builder(envLib)
+
   // フォローイベント
   const followUseCase = FollowUseCase.builder(lineBotExternal)
 
@@ -44,7 +48,7 @@ export const injection = (envLib: IEnvSetUp): IWebHooks => {
   const postBackUseCase = PostBackUseCase.builder(lineBotExternal)
 
   // メッセージイベント
-  const messageUseCase = MessageUseCase.builder(lineBotExternal, googleCalenderExt)
+  const messageUseCase = MessageUseCase.builder(lineBotExternal, googleCalenderExt, gptExternal)
 
   // 画像送信イベント
   const imageUseCase = ImageUseCase.builder(lineBotExternal, googleCalenderExt)

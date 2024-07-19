@@ -1,14 +1,6 @@
 import {calendar_v3} from "googleapis";
+import {CalenderEntity} from "../../models/calenderModel/calenderEntity";
 
 export  interface IGoogleCalenderExternal {
-  createEventWithMeetLink(
-    calendarId: string,
-    summary: string,
-    description: string,
-    location: string,
-    startDateTime: string,
-    endDateTime: string,
-    isOnlineMtg: boolean,
-    timeZone: string,
-  ): Promise<calendar_v3.Schema$Event>
+  createEventWithMeetLink(calenderId: string, calenderEntity: CalenderEntity): Promise<calendar_v3.Schema$Event>
 }

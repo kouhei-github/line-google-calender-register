@@ -2,6 +2,7 @@ import { IGoogleCalenderExternal } from "../../../../domain/interface/externals/
 import { IEnvSetUp } from "../../../../envs/config";
 import { calendar_v3, google } from "googleapis";
 import { JWT } from 'google-auth-library';
+import {CalenderEntity} from "../../../../domain/models/calenderModel/calenderEntity";
 
 export class GoogleCalenderExternal implements IGoogleCalenderExternal {
   private calendar: calendar_v3.Calendar;
@@ -15,48 +16,14 @@ export class GoogleCalenderExternal implements IGoogleCalenderExternal {
     this.calendar = google.calendar({ version: 'v3', auth: jwtClient });
   }
 
-  public async createEventWithMeetLink(
-    calendarId: string,
-    summary: string,
-    description: string,
-    location: string,
-    startDateTime: string,
-    endDateTime: string,
-    isOnlineMtg: boolean,
-    timeZone: string,
-  ): Promise<calendar_v3.Schema$Event> {
+  public async createEventWithMeetLink(calenderId: string, calenderEntity: CalenderEntity): Promise<calendar_v3.Schema$Event> {
     try {
-      const event: calendar_v3.Schema$Event = {
-        summary: summary,
-        description: description,
-        location: location,
-        start: {
-          dateTime: startDateTime,
-          timeZone: timeZone,
-        },
-        end: {
-          dateTime: endDateTime,
-          timeZone: timeZone,
-        },
-      };
-
-      if (isOnlineMtg) {
-        event.conferenceData = {
-          createRequest: {
-            requestId: `meet-${Date.now()}`,
-            conferenceSolutionKey: {
-              type: "hangoutsMeet"  // 'eventHangout' から 'hangoutsMeet' に変更
-            },
-          },
-        };
-      }
+      const event: calendar_v3.Schema$Event = calenderEntity.googleCalenderFormat()
 
       const response = await this.calendar.events.insert({
-        calendarId: calendarId,
+        calendarId: calenderId,
         requestBody: event,
-        conferenceDataVersion: isOnlineMtg ? 1 : 0,
       });
-
       return response.data;
     } catch (error) {
       console.error('Error creating event:', error);
