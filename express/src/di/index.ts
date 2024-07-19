@@ -15,6 +15,7 @@ import {LineBotExternal} from "../infrastructure/external/line/lineBotExternal";
 import {ImageUseCase} from "../application/useCase/line/imageUseCase/imageUseCase";
 import {GoogleCalenderExternal} from "../infrastructure/external/google/calender/googleCalenderExternal";
 import {ChatGptExternal} from "../infrastructure/external/llm/gpt/chatGptExternal";
+import {AudioUseCase} from "../application/useCase/line/audioUseCase/audioUseCase";
 
 export const injection = (envLib: IEnvSetUp): IWebHooks => {
 
@@ -53,7 +54,10 @@ export const injection = (envLib: IEnvSetUp): IWebHooks => {
   // 画像送信イベント
   const imageUseCase = ImageUseCase.builder(lineBotExternal, googleCalenderExt)
 
-  const lineHandler = LineWebHookController.builder(followUseCase, postBackUseCase, messageUseCase, imageUseCase)
+  // 音声送信イベント
+  const audioUseCase = AudioUseCase.builder(lineBotExternal, gptExternal, googleCalenderExt)
+
+  const lineHandler = LineWebHookController.builder(followUseCase, postBackUseCase, messageUseCase, imageUseCase, audioUseCase)
   // ここでルーティングの設定
   return WebHooks.builder( userHandler, lineHandler )
 }
