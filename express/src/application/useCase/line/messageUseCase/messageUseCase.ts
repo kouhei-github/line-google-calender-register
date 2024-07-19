@@ -1,7 +1,6 @@
 import {IResponse} from "../../index";
 import {MessageEvent, TextEventMessage} from "@line/bot-sdk";
 import {ILineBotExternal} from "../../../../domain/interface/externals/lineBotExternal";
-import {TextMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/textMessageBuilder";
 import {IGoogleCalenderExternal} from "../../../../domain/interface/externals/googleCalenderExternal";
 import {ILlmExternal} from "../../../../domain/interface/externals/llmExternal";
 import {StartDateTime} from "../../../../domain/models/calenderModel/startDateTime";
@@ -12,7 +11,6 @@ import {Description} from "../../../../domain/models/calenderModel/description";
 import {TimeZone} from "../../../../domain/models/calenderModel/timeZone";
 import {Location} from "../../../../domain/models/calenderModel/location";
 import {EndDateTime} from "../../../../domain/models/calenderModel/endDateTime";
-import {FlexMessageConverter} from "../../../../infrastructure/external/line/messageBuilder/flexMessageBuilder";
 import {BubbleMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/bubbleMessageBuilder";
 
 export class MessageUseCase {
@@ -60,9 +58,6 @@ export class MessageUseCase {
         "kohei0801nagamatsu@gmail.com",
         calenderEntity
       )
-
-      console.log(myEvent.htmlLink)
-      console.log(myEvent.hangoutLink)
 
       const bubbleMessage = BubbleMessageBuilder.GoogleRegisterUI(myEvent.htmlLink ?? "", calenderEntity)
 
