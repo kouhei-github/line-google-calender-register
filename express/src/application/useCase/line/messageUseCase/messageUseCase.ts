@@ -69,9 +69,7 @@ export class MessageUseCase {
     } catch (e) {
       console.log(`[ ERROR ] Message Event: ${e}`)
       return {data: "", status: 400, message: "error"}
-
     }
-
   }
 
   static builder(
