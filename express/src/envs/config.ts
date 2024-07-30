@@ -9,6 +9,7 @@ export interface IEnvSetUp {
   getGoogleClientEmail(): string
   getAwsAccessKey(): string
   getAwsAccessSecret(): string
+  getEnv(): string
 }
 
 export class EnvSetUp implements IEnvSetUp
@@ -21,6 +22,7 @@ export class EnvSetUp implements IEnvSetUp
   private googleProjectId: string
   private awsAccessKey: string
   private awsAccessSecret: string
+  private env: string
 
   constructor()
   {
@@ -32,6 +34,7 @@ export class EnvSetUp implements IEnvSetUp
     this.googleProjectId   = process.env.GOOGLE_PROJECT_ID ?? ""
     this.awsAccessKey      = process.env.AWS_ACCESS_KEY ?? ""
     this.awsAccessSecret   = process.env.AWS_ACCESS_SECRET ?? ""
+    this.env               = process.env.ENV ?? ""
   }
 
   public setUp(): void
@@ -54,11 +57,13 @@ export class EnvSetUp implements IEnvSetUp
     if (this.googleProjectId === "") {
       throw new Error("Google ProjectId is required")
     }
-    if (this.awsAccessKey === ""){
-      throw new Error("AWS_ACCESS_KEY is required")
-    }
-    if (this.awsAccessSecret === "") {
-      throw new Error("AWS_ACCESS_SECRET is required")
+    if(this.env === "local"){
+      if (this.awsAccessKey === ""){
+        throw new Error("AWS_ACCESS_KEY is required")
+      }
+      if (this.awsAccessSecret === "") {
+        throw new Error("AWS_ACCESS_SECRET is required")
+      }
     }
   }
 
@@ -100,6 +105,11 @@ export class EnvSetUp implements IEnvSetUp
   public getAwsAccessSecret(): string
   {
     return this.awsAccessSecret
+  }
+
+  public getEnv(): string
+  {
+    return this.env
   }
 
   static builder(): IEnvSetUp

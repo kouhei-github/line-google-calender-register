@@ -26,21 +26,6 @@ const router = injection(envLib)
 
 app.use("/api/", router.register())
 
-// Lambda handler
-export const handler = async (event: APIGatewayEvent, context: Context) => {
-  const server = app.listen(8080, () => {
-    console.log("Server running on Lambda!")
-  })
-
-  return new Promise((resolve, reject) => {
-    server.on('error', reject)
-    server.on('listening', () => {
-      console.log('Listening on port 8080')
-      resolve(server)
-    })
-  })
-}
-
 // ローカルでの開発用
 if (require.main === module) {
   app.listen(8080, () => {

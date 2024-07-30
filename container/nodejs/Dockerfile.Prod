@@ -27,9 +27,7 @@ COPY --from=build /app/package.json /app/package.json
 COPY --from=build /app/package-lock.json /app/package-lock.json
 COPY --from=build /app/tsconfig.json /app/tsconfig.json
 
-COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.8.3 /lambda-adapter /opt/extensions/lambda-adapter
-
 EXPOSE 8080
 
-CMD [ "dist/index.handler" ]
+CMD [ "node", "dist/index.js" ]
 
