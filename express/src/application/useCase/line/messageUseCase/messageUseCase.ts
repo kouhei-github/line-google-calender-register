@@ -24,85 +24,92 @@ export class MessageUseCase {
     private googleCalenderExternal: IGoogleCalenderExternal,
     private llmModel: ILlmExternal,
     private calenderRepository: ICalenderRepository
-  ) {
-  }
+  ) {}
 
-  public async execute(event: MessageEvent): Promise<IResponse>
-  {
-    const message = event.message as TextEventMessage
-    const existingUser = await this.calenderRepository.getItem<{user_id: string, calenderId: string}>({ user_id: event.source.userId })
+  public async execute(event: MessageEvent): Promise<IResponse> {
+    const message = event.message as TextEventMessage; // メッセージイベントからテキストメッセージを取得
+    const existingUser = await this.calenderRepository.getItem<{user_id: string, calenderId: string}>({ user_id: event.source.userId }); // ユーザーのカレンダーIDを取得
+
     if (existingUser.calenderId === "") {
-      let emailDomain: Email
-      try{
-        emailDomain = new Email(message.text)
+      let emailDomain: Email;
+      try {
+        emailDomain = new Email(message.text); // 入力されたメッセージをメールアドレスとして処理
       } catch (e) {
-        const errorMessage = new TextMessageBuilder(`カレンダーIDを入力してください。\n\n[Error メッセージ]\n${e}`)
-        this.lineBot.replyMessage(event.replyToken, errorMessage)
-        return {data: "", status: 400, message: `[ ERROR ] メールアドレスが正しくありません: ${e}`}
+        // メールアドレスが不正の場合、エラーメッセージを送信
+        const errorMessage = new TextMessageBuilder(`カレンダーIDを入力してください。\n\n[Error メッセージ]\n${e}`);
+        this.lineBot.replyMessage(event.replyToken, errorMessage);
+        return {data: "", status: 400, message: `[ ERROR ] メールアドレスが正しくありません: ${e}`};
       }
-      this.calenderRepository.putItem({user_id: event.source.userId, calenderId: emailDomain.getValue()})
+      // カレンダーIDをリポジトリに保存
+      this.calenderRepository.putItem({user_id: event.source.userId, calenderId: emailDomain.getValue()});
 
-      const successMessage = new TextMessageBuilder(`カレンダーIDを取得できました。\n\n自然言語で予定を登録できます。\n(例)\n10月4日にOpenAI社のチャットGPTさんと打ち合わせが、14:00から1時間ある`)
-      this.lineBot.replyMessage(event.replyToken, successMessage)
-      return {data: "", status: 200, message: `メールアドレスの登録に成功しました`}
+      // 成功メッセージを送信
+      const successMessage = new TextMessageBuilder(`カレンダーIDを取得できました。\n\n自然言語で予定を登録できます。\n(例)\n10月4日にOpenAI社のチャットGPTさんと打ち合わせが、14:00から1時間ある`);
+      this.lineBot.replyMessage(event.replyToken, successMessage);
+      return {data: "", status: 200, message: `メールアドレスの登録に成功しました`};
     }
 
     // GPTで予定を取得する
-    const llmResponse = await this.llmModel.prompt(message.text)
+    const llmResponse = await this.llmModel.prompt(message.text);
 
+    // 取得したレスポンスをJSONとしてパース
     const outputJson: {
       summary: string,
       description: string,
       location: string,
       startDateTime: string,
       endDateTime: string
-    } = JSON.parse(llmResponse.choice.content)
+    } = JSON.parse(llmResponse.choice.content);
 
     try {
-      const startDateDomain = new StartDateTime(outputJson.startDateTime)
-      const endDateDomain = new EndDateTime(outputJson.endDateTime)
+      // 開始日時と終了日時のドメインモデルを作成
+      const startDateDomain = new StartDateTime(outputJson.startDateTime);
+      const endDateDomain = new EndDateTime(outputJson.endDateTime);
 
       // 日付エンティティの作成
-      const datetimeEntity = new DateTimeEntity(startDateDomain, endDateDomain)
+      const datetimeEntity = new DateTimeEntity(startDateDomain, endDateDomain);
 
       // 開始日時が終了日時より早いか確認
-      datetimeEntity.validateCurrentTime()
+      datetimeEntity.validateCurrentTime();
 
-      const summaryDomain = new Summary(outputJson.summary)
-      const descriptionDomain = new Description(outputJson.description)
-      const locationDomain = new Location(outputJson.location)
-      const timeZoneDomain = new TimeZone("Asia/Tokyo")
+      // その他のドメインモデルを作成
+      const summaryDomain = new Summary(outputJson.summary);
+      const descriptionDomain = new Description(outputJson.description);
+      const locationDomain = new Location(outputJson.location);
+      const timeZoneDomain = new TimeZone("Asia/Tokyo");
+
       // カレンダーエンティティの作成
-      const calenderEntity = new CalenderEntity(
-        summaryDomain, descriptionDomain, locationDomain, timeZoneDomain, datetimeEntity)
+      const calenderEntity = new CalenderEntity(summaryDomain, descriptionDomain, locationDomain, timeZoneDomain, datetimeEntity);
 
-      // Google Calender登録
-      const myEvent = await this.googleCalenderExternal.createEventWithMeetLink(
-        existingUser.calenderId,
-        calenderEntity
-      )
+      // Google カレンダーにイベントを登録
+      const myEvent = await this.googleCalenderExternal.createEventWithMeetLink(existingUser.calenderId, calenderEntity);
 
-      const bubbleMessage = BubbleMessageBuilder.GoogleRegisterUI(myEvent.htmlLink ?? "", calenderEntity)
+      // バブルメッセージを作成
+      const bubbleMessage = BubbleMessageBuilder.GoogleRegisterUI(myEvent.htmlLink ?? "", calenderEntity);
 
-      const bubbleConverter = BubbleMessageBuilder.builder(bubbleMessage)
+      // バブルメッセージを変換
+      const bubbleConverter = BubbleMessageBuilder.builder(bubbleMessage);
 
-      this.lineBot.replyMessage(event.replyToken, bubbleConverter)
+      // LINEボットでメッセージを返信
+      this.lineBot.replyMessage(event.replyToken, bubbleConverter);
 
-      return {data: "メッセージの送信完了", status: 200, message: "メッセージの送信完了"}
+      return {data: "メッセージの送信完了", status: 200, message: "メッセージの送信完了"};
     } catch (e) {
-      const errorMessage = new TextMessageBuilder(`正しく入力してください。\n\n[Error メッセージ]\n${e}`)
-      this.lineBot.replyMessage(event.replyToken, errorMessage)
-      console.log(`[ ERROR ] Message Event: ${e}`)
-      return {data: "", status: 400, message: "error"}
+      // エラーメッセージを作成して送信
+      const errorMessage = new TextMessageBuilder(`正しく入力してください。\n\n[Error メッセージ]\n${e}`);
+      this.lineBot.replyMessage(event.replyToken, errorMessage);
+      console.log(`[ ERROR ] Message Event: ${e}`);
+      return {data: "", status: 400, message: "error"};
     }
   }
 
+  // MessageUseCaseのインスタンスを作成する静的メソッド
   static builder(
     lineBot: ILineBotExternal,
     googleCalenderExternal: IGoogleCalenderExternal,
     llmModel: ILlmExternal,
     calenderRepository: ICalenderRepository
   ): MessageUseCase {
-    return new this(lineBot, googleCalenderExternal, llmModel, calenderRepository)
+    return new this(lineBot, googleCalenderExternal, llmModel, calenderRepository);
   }
 }

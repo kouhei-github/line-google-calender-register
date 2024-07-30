@@ -25,24 +25,27 @@ export class FollowUseCase {
      * Google MeetsのURLも発行して
      */
     try {
-      const replyToken = event.replyToken;
-      const flexContainer = this.flexGreetMessage()
-      const bubble = new BubbleMessageBuilder(flexContainer)
-      this.lineBot.replyMessage(replyToken, bubble)
+      const replyToken = event.replyToken; // イベントから返信トークンを取得
+      const flexContainer = this.flexGreetMessage(); // 挨拶メッセージを生成
+      const bubble = new BubbleMessageBuilder(flexContainer); // バブルメッセージを生成
+      this.lineBot.replyMessage(replyToken, bubble); // メッセージを返信
 
-      this.calenderRepository.putItem({user_id: event.source.userId, calenderId: ""})
+      // ユーザー情報をカレンダーリポジトリに保存
+      this.calenderRepository.putItem({user_id: event.source.userId, calenderId: ""});
     } catch(e) {
-      console.log(`[ ERROR ] Follow Event: ${e}`)
-      return {data: "", status: 400, message: `[ ERROR ] Follow Event: ${e}`}
+      // エラーログを出力し、エラーレスポンスを返す
+      console.log(`[ ERROR ] Follow Event: ${e}`);
+      return {data: "", status: 400, message: `[ ERROR ] Follow Event: ${e}`};
     }
 
     return {
-      data: { msg: "挨拶メッセージの送信完了" },
+      data: { msg: "挨拶メッセージの送信完了" }, // 成功メッセージを設定
       status: 200,
       message: "挨拶メッセージの送信完了"
-    }
+    };
   }
 
+  // 挨拶メッセージの内容を定義
   private flexGreetMessage(): FlexBubble
   {
     return {
@@ -146,12 +149,11 @@ export class FollowUseCase {
           }
         ]
       }
-    }
-
+    };
   }
 
-  static builder(lineBot: ILineBotExternal, calenderRepository: ICalenderRepository): FollowUseCase
-  {
-    return new this(lineBot, calenderRepository)
+  // FollowUseCaseのインスタンスを作成する静的メソッド
+  static builder(lineBot: ILineBotExternal, calenderRepository: ICalenderRepository): FollowUseCase {
+    return new this(lineBot, calenderRepository);
   }
 }
