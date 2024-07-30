@@ -15,6 +15,8 @@ import {BubbleMessageBuilder} from "../../../../infrastructure/external/line/mes
 import {
   ICalenderRepository
 } from "../../../../domain/interface/repositories/CalenderRepositoryInterface";
+import {Email} from "../../../../domain/models/userModel/email";
+import {TextMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/textMessageBuilder";
 
 export class MessageUseCase {
   constructor(
@@ -28,6 +30,23 @@ export class MessageUseCase {
   public async execute(event: MessageEvent): Promise<IResponse>
   {
     const message = event.message as TextEventMessage
+    const existingUser = await this.calenderRepository.getItem<{user_id: string, calenderId: string}>({ user_id: event.source.userId })
+    if (existingUser.calenderId === "") {
+      let emailDomain: Email
+      try{
+        emailDomain = new Email(message.text)
+      } catch (e) {
+        const errorMessage = new TextMessageBuilder(`カレンダーIDを入力してください。\n\n[Error メッセージ]\n${e}`)
+        this.lineBot.replyMessage(event.replyToken, errorMessage)
+        return {data: "", status: 400, message: `[ ERROR ] メールアドレスが正しくありません: ${e}`}
+      }
+      this.calenderRepository.putItem({user_id: event.source.userId, calenderId: emailDomain.getValue()})
+
+      const successMessage = new TextMessageBuilder(`カレンダーIDを取得できました。\n\n自然言語で予定を登録できます。\n(例)\n10月4日にOpenAI社のチャットGPTさんと打ち合わせが、14:00から1時間ある`)
+      this.lineBot.replyMessage(event.replyToken, successMessage)
+      return {data: "", status: 200, message: `メールアドレスの登録に成功しました`}
+    }
+
     // GPTで予定を取得する
     const llmResponse = await this.llmModel.prompt(message.text)
 
@@ -59,7 +78,7 @@ export class MessageUseCase {
 
       // Google Calender登録
       const myEvent = await this.googleCalenderExternal.createEventWithMeetLink(
-        "kohei0801nagamatsu@gmail.com",
+        existingUser.calenderId,
         calenderEntity
       )
 
@@ -71,6 +90,8 @@ export class MessageUseCase {
 
       return {data: "メッセージの送信完了", status: 200, message: "メッセージの送信完了"}
     } catch (e) {
+      const errorMessage = new TextMessageBuilder(`正しく入力してください。\n\n[Error メッセージ]\n${e}`)
+      this.lineBot.replyMessage(event.replyToken, errorMessage)
       console.log(`[ ERROR ] Message Event: ${e}`)
       return {data: "", status: 400, message: "error"}
     }

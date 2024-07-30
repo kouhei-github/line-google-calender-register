@@ -1,11 +1,12 @@
 import {IResponse} from "../../index";
-import { FollowEvent } from "@line/bot-sdk";
+import {FlexBubble, FlexContainer, FlexMessage, FollowEvent} from "@line/bot-sdk";
 import {ILineBotExternal} from "../../../../domain/interface/externals/lineBotExternal";
 import {
   FlexMessageConverter,
   FlexMessageJSON
 } from "../../../../infrastructure/external/line/messageBuilder/flexMessageBuilder";
 import {ICalenderRepository} from "../../../../domain/interface/repositories/CalenderRepositoryInterface";
+import {BubbleMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/bubbleMessageBuilder";
 
 export class FollowUseCase {
   constructor(private lineBot: ILineBotExternal, private calenderRepository: ICalenderRepository) {
@@ -25,7 +26,11 @@ export class FollowUseCase {
      */
     try {
       const replyToken = event.replyToken;
+      const flexContainer = this.flexGreetMessage()
+      const bubble = new BubbleMessageBuilder(flexContainer)
+      this.lineBot.replyMessage(replyToken, bubble)
 
+      this.calenderRepository.putItem({user_id: event.source.userId, calenderId: ""})
     } catch(e) {
       console.log(`[ ERROR ] Follow Event: ${e}`)
       return {data: "", status: 400, message: `[ ERROR ] Follow Event: ${e}`}
@@ -36,6 +41,113 @@ export class FollowUseCase {
       status: 200,
       message: "挨拶メッセージの送信完了"
     }
+  }
+
+  private flexGreetMessage(): FlexBubble
+  {
+    return {
+      "type": "bubble",
+      "hero": {
+        "type": "image",
+        "url": "https://ai-interview-calender-register.s3.ap-northeast-1.amazonaws.com/images/sumnail.jpg",
+        "size": "full",
+        "aspectRatio": "20:13",
+        "aspectMode": "fit"
+      },
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "spacing": "md",
+        "contents": [
+          {
+            "type": "text",
+            "text": "簡単30秒でAI連携",
+            "size": "xl",
+            "weight": "bold"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "sm",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "baseline",
+                "contents": [
+                  {
+                    "type": "icon",
+                    "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                  },
+                  {
+                    "type": "text",
+                    "text": "BOTを追加",
+                    "weight": "bold",
+                    "margin": "sm",
+                    "flex": 0
+                  },
+                  {
+                    "type": "text",
+                    "text": "15秒",
+                    "size": "sm",
+                    "align": "end",
+                    "color": "#aaaaaa"
+                  }
+                ]
+              },
+              {
+                "type": "box",
+                "layout": "baseline",
+                "contents": [
+                  {
+                    "type": "icon",
+                    "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                  },
+                  {
+                    "type": "text",
+                    "text": "カレンダーIDを送信",
+                    "weight": "bold",
+                    "margin": "sm",
+                    "flex": 0
+                  },
+                  {
+                    "type": "text",
+                    "text": "30秒",
+                    "size": "sm",
+                    "align": "end",
+                    "color": "#aaaaaa"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": "Sauce, Onions, Pickles, Lettuce & Cheese",
+            "wrap": true,
+            "color": "#aaaaaa",
+            "size": "xxs"
+          }
+        ]
+      },
+      "footer": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "button",
+            "style": "primary",
+            "color": "#8ECCB2",
+            "margin": "xxl",
+            "action": {
+              "type": "uri",
+              "label": "手順を確認",
+              "uri": "https://qiita.com/dayjournal/items/c827a17917127bff3906"
+            }
+          }
+        ]
+      }
+    }
+
   }
 
   static builder(lineBot: ILineBotExternal, calenderRepository: ICalenderRepository): FollowUseCase

@@ -15,6 +15,8 @@ import {IGoogleCalenderExternal} from "../../../../domain/interface/externals/go
 import {
   ICalenderRepository,
 } from "../../../../domain/interface/repositories/CalenderRepositoryInterface";
+import {Email} from "../../../../domain/models/userModel/email";
+import {TextMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/textMessageBuilder";
 
 export class AudioUseCase {
   constructor(
@@ -28,6 +30,14 @@ export class AudioUseCase {
   public async execute(event: MessageEvent): Promise<IResponse>
   {
     const message = event.message as AudioEventMessage
+
+    const existingUser = await this.calenderRepository.getItem<{user_id: string, calenderId: string}>({ user_id: event.source.userId })
+    if (existingUser.calenderId === "") {
+      const errorMessage = new TextMessageBuilder(`カレンダーIDをテキストで入力してください。`)
+      this.lineBot.replyMessage(event.replyToken, errorMessage)
+      return {data: "", status: 400, message: `[ ERROR ] カレンダーIDをテキストで入力してください`}
+    }
+
     const file =　await this.lineBot.getAudioContent(message.id)
 
     //
@@ -63,7 +73,7 @@ export class AudioUseCase {
 
       // Google Calender登録
       const myEvent = await this.googleCalender.createEventWithMeetLink(
-        "kohei0801nagamatsu@gmail.com",
+        existingUser.calenderId,
         calenderEntity
       )
 
@@ -75,6 +85,8 @@ export class AudioUseCase {
 
       return {data: "メッセージの送信完了", status: 200, message: "メッセージの送信完了"}
     } catch (e) {
+      const errorMessage = new TextMessageBuilder(`正しく音声入力してください。\n\n[Error メッセージ]\n${e}`)
+      this.lineBot.replyMessage(event.replyToken, errorMessage)
       console.log(`[ ERROR ] Message Event: ${e}`)
       return {data: "", status: 400, message: "error"}
     }

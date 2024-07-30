@@ -15,6 +15,7 @@ import {BubbleMessageBuilder} from "../../../../infrastructure/external/line/mes
 import {
   ICalenderRepository
 } from "../../../../domain/interface/repositories/CalenderRepositoryInterface";
+import {TextMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/textMessageBuilder";
 
 export class ImageUseCase {
   constructor(
@@ -27,19 +28,26 @@ export class ImageUseCase {
 
   public async execute(event: MessageEvent): Promise<IResponse>
   {
+    const existingUser = await this.calenderRepository.getItem<{user_id: string, calenderId: string}>({ user_id: event.source.userId })
+    if (existingUser.calenderId === "") {
+      const errorMessage = new TextMessageBuilder(`カレンダーIDをテキストで入力してください。`)
+      this.lineBot.replyMessage(event.replyToken, errorMessage)
+      return {data: "", status: 400, message: `[ ERROR ] カレンダーIDをテキストで入力してください`}
+    }
+
     const base64Image = await this.lineBot.getImageContent(event.message.id);
 
     // OPEN AIに投げてOCR
     const llmResponse = await this.llmModel.ocr(base64Image)
-    const outputJson: {
-      summary: string,
-      description: string,
-      location: string,
-      startDateTime: string,
-      endDateTime: string
-    } = JSON.parse(llmResponse.choice.content)
 
     try {
+      const outputJson: {
+        summary: string,
+        description: string,
+        location: string,
+        startDateTime: string,
+        endDateTime: string
+      } = JSON.parse(llmResponse.choice.content)
       const startDateDomain = new StartDateTime(outputJson.startDateTime)
       const endDateDomain = new EndDateTime(outputJson.endDateTime)
 
@@ -59,7 +67,7 @@ export class ImageUseCase {
 
       // Google Calender登録
       const myEvent = await this.googleCalenderExternal.createEventWithMeetLink(
-        "kohei0801nagamatsu@gmail.com",
+        existingUser.calenderId,
         calenderEntity
       )
 
@@ -71,6 +79,8 @@ export class ImageUseCase {
 
       return {data: "メッセージの送信完了", status: 200, message: "メッセージの送信完了"}
     } catch (e) {
+      const errorMessage = new TextMessageBuilder(`画像に以下が含まれるか確認してください。\n\n[Error メッセージ]\n${e}`)
+      this.lineBot.replyMessage(event.replyToken, errorMessage)
       console.log(`[ ERROR ] Message Event: ${e}`)
       return {data: "", status: 400, message: "error"}
     }
