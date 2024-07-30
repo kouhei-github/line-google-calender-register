@@ -12,12 +12,16 @@ import {TimeZone} from "../../../../domain/models/calenderModel/timeZone";
 import {Location} from "../../../../domain/models/calenderModel/location";
 import {EndDateTime} from "../../../../domain/models/calenderModel/endDateTime";
 import {BubbleMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/bubbleMessageBuilder";
+import {
+  ICalenderRepository
+} from "../../../../domain/interface/repositories/CalenderRepositoryInterface";
 
 export class MessageUseCase {
   constructor(
     private lineBot: ILineBotExternal,
     private googleCalenderExternal: IGoogleCalenderExternal,
-    private llmModel: ILlmExternal
+    private llmModel: ILlmExternal,
+    private calenderRepository: ICalenderRepository
   ) {
   }
 
@@ -75,8 +79,9 @@ export class MessageUseCase {
   static builder(
     lineBot: ILineBotExternal,
     googleCalenderExternal: IGoogleCalenderExternal,
-    llmModel: ILlmExternal
+    llmModel: ILlmExternal,
+    calenderRepository: ICalenderRepository
   ): MessageUseCase {
-    return new this(lineBot, googleCalenderExternal, llmModel)
+    return new this(lineBot, googleCalenderExternal, llmModel, calenderRepository)
   }
 }

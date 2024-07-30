@@ -5,9 +5,10 @@ import {
   FlexMessageConverter,
   FlexMessageJSON
 } from "../../../../infrastructure/external/line/messageBuilder/flexMessageBuilder";
+import {ICalenderRepository} from "../../../../domain/interface/repositories/CalenderRepositoryInterface";
 
 export class FollowUseCase {
-  constructor(private lineBot: ILineBotExternal) {
+  constructor(private lineBot: ILineBotExternal, private calenderRepository: ICalenderRepository) {
   }
 
   public async execute(event: FollowEvent): Promise<IResponse>
@@ -469,8 +470,8 @@ export class FollowUseCase {
     }
   }
 
-  static builder(lineBot: ILineBotExternal): FollowUseCase
+  static builder(lineBot: ILineBotExternal, calenderRepository: ICalenderRepository): FollowUseCase
   {
-    return new this(lineBot)
+    return new this(lineBot, calenderRepository)
   }
 }

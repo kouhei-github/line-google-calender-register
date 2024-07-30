@@ -12,12 +12,16 @@ import {Location} from "../../../../domain/models/calenderModel/location";
 import {TimeZone} from "../../../../domain/models/calenderModel/timeZone";
 import {CalenderEntity} from "../../../../domain/models/calenderModel/calenderEntity";
 import {BubbleMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/bubbleMessageBuilder";
+import {
+  ICalenderRepository
+} from "../../../../domain/interface/repositories/CalenderRepositoryInterface";
 
 export class ImageUseCase {
   constructor(
     private lineBot: ILineBotExternal,
     private googleCalenderExternal: IGoogleCalenderExternal,
     private llmModel: ILlmExternal,
+    private calenderRepository: ICalenderRepository
   ) {
   }
 
@@ -77,8 +81,9 @@ export class ImageUseCase {
     lineBot: ILineBotExternal,
     googleCalender: IGoogleCalenderExternal,
     llmModel: ILlmExternal,
+    calenderRepository: ICalenderRepository
   ): ImageUseCase
   {
-    return new this(lineBot, googleCalender, llmModel)
+    return new this(lineBot, googleCalender, llmModel, calenderRepository)
   }
 }

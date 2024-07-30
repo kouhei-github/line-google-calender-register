@@ -16,10 +16,16 @@ import {ImageUseCase} from "../application/useCase/line/imageUseCase/imageUseCas
 import {GoogleCalenderExternal} from "../infrastructure/external/google/calender/googleCalenderExternal";
 import {ChatGptExternal} from "../infrastructure/external/llm/gpt/chatGptExternal";
 import {AudioUseCase} from "../application/useCase/line/audioUseCase/audioUseCase";
+import {CalenderRepository} from "../infrastructure/datastore/repositoryImpl/dynamodb/CalenderRepository";
+import {DynamoDBConfig} from "../infrastructure/datastore/dynamoDbPlugin";
 
 export const injection = (envLib: IEnvSetUp): IWebHooks => {
 
   const userRepository = UserRepository.builder()
+
+  // db
+  const db = new DynamoDBConfig(envLib)
+  const calenderRepository = CalenderRepository.builder(db)
 
   const middleware = ServerMiddleware.builder(userRepository)
 
@@ -43,19 +49,19 @@ export const injection = (envLib: IEnvSetUp): IWebHooks => {
   const gptExternal = ChatGptExternal.builder(envLib)
 
   // フォローイベント
-  const followUseCase = FollowUseCase.builder(lineBotExternal)
+  const followUseCase = FollowUseCase.builder(lineBotExternal, calenderRepository)
 
   // ポストバックイベント
-  const postBackUseCase = PostBackUseCase.builder(lineBotExternal)
+  const postBackUseCase = PostBackUseCase.builder(lineBotExternal, calenderRepository)
 
   // メッセージイベント
-  const messageUseCase = MessageUseCase.builder(lineBotExternal, googleCalenderExt, gptExternal)
+  const messageUseCase = MessageUseCase.builder(lineBotExternal, googleCalenderExt, gptExternal, calenderRepository)
 
   // 画像送信イベント
-  const imageUseCase = ImageUseCase.builder(lineBotExternal, googleCalenderExt, gptExternal)
+  const imageUseCase = ImageUseCase.builder(lineBotExternal, googleCalenderExt, gptExternal, calenderRepository)
 
   // 音声送信イベント
-  const audioUseCase = AudioUseCase.builder(lineBotExternal, gptExternal, googleCalenderExt)
+  const audioUseCase = AudioUseCase.builder(lineBotExternal, gptExternal, googleCalenderExt, calenderRepository)
 
   const lineHandler = LineWebHookController.builder(followUseCase, postBackUseCase, messageUseCase, imageUseCase, audioUseCase)
   // ここでルーティングの設定

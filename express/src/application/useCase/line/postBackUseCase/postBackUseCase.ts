@@ -1,9 +1,10 @@
 import {IResponse} from "../../index";
 import {PostbackEvent, WebhookRequestBody} from "@line/bot-sdk";
 import {ILineBotExternal} from "../../../../domain/interface/externals/lineBotExternal";
+import {ICalenderRepository} from "../../../../domain/interface/repositories/CalenderRepositoryInterface";
 
 export class PostBackUseCase {
-  constructor(private lineBot: ILineBotExternal) {
+  constructor(private lineBot: ILineBotExternal, private calenderRepository: ICalenderRepository) {
   }
 
   public async execute(event: PostbackEvent): Promise<IResponse>
@@ -22,8 +23,8 @@ export class PostBackUseCase {
     return {data: "", status: 400, message: "すでに存在するメールアドレスです"}
   }
 
-  static builder(lineBot: ILineBotExternal): PostBackUseCase
+  static builder(lineBot: ILineBotExternal, calenderRepository: ICalenderRepository): PostBackUseCase
   {
-    return new this(lineBot)
+    return new this(lineBot, calenderRepository)
   }
 }

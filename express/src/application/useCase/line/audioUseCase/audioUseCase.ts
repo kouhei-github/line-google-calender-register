@@ -2,7 +2,6 @@ import {IResponse} from "../../index";
 import {AudioEventMessage, AudioMessage, MessageEvent, PostbackEvent, WebhookRequestBody} from "@line/bot-sdk";
 import {ILineBotExternal} from "../../../../domain/interface/externals/lineBotExternal";
 import {ILlmExternal} from "../../../../domain/interface/externals/llmExternal";
-import {TextMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/textMessageBuilder";
 import {StartDateTime} from "../../../../domain/models/calenderModel/startDateTime";
 import {EndDateTime} from "../../../../domain/models/calenderModel/endDateTime";
 import {DateTimeEntity} from "../../../../domain/models/calenderModel/dateTimeEntity";
@@ -12,14 +11,17 @@ import {Location} from "../../../../domain/models/calenderModel/location";
 import {TimeZone} from "../../../../domain/models/calenderModel/timeZone";
 import {CalenderEntity} from "../../../../domain/models/calenderModel/calenderEntity";
 import {BubbleMessageBuilder} from "../../../../infrastructure/external/line/messageBuilder/bubbleMessageBuilder";
-import {GoogleCalenderExternal} from "../../../../infrastructure/external/google/calender/googleCalenderExternal";
 import {IGoogleCalenderExternal} from "../../../../domain/interface/externals/googleCalenderExternal";
+import {
+  ICalenderRepository,
+} from "../../../../domain/interface/repositories/CalenderRepositoryInterface";
 
 export class AudioUseCase {
   constructor(
     private lineBot: ILineBotExternal,
     private llmModel: ILlmExternal,
     private googleCalender: IGoogleCalenderExternal,
+    private calenderRepository: ICalenderRepository
   ) {
   }
 
@@ -28,8 +30,8 @@ export class AudioUseCase {
     const message = event.message as AudioEventMessage
     const file =　await this.lineBot.getAudioContent(message.id)
 
+    //
     const audioText = await this.llmModel.audio(file)
-
     // GPTで予定を取得する
     const llmResponse = await this.llmModel.prompt(audioText)
 
@@ -81,9 +83,10 @@ export class AudioUseCase {
   static builder(
     lineBot: ILineBotExternal,
     llmExternal: ILlmExternal,
-    googleCalender: IGoogleCalenderExternal
+    googleCalender: IGoogleCalenderExternal,
+    calenderRepository: ICalenderRepository,
   ): AudioUseCase
   {
-    return new this(lineBot, llmExternal, googleCalender)
+    return new this(lineBot, llmExternal, googleCalender, calenderRepository)
   }
 }

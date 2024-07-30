@@ -39,7 +39,6 @@ export class LineWebHookController implements ILineWebHookController {
         } else if (event.message.type === 'audio'){
           const audioResponse = await this.audioUseCase.execute(event)
           return res.status(200).json(audioResponse)
-
         }
 
     }
